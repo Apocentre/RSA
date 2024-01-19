@@ -16,11 +16,6 @@ use crate::padding::PaddingScheme;
 use crate::raw::{DecryptionPrimitive, EncryptionPrimitive};
 use crate::{oaep, pkcs1v15, pss};
 
-lazy_static! {
-    static ref MIN_PUB_EXPONENT: BigUint = BigUint::from_u64(2).unwrap();
-    static ref MAX_PUB_EXPONENT: BigUint = BigUint::from_u64(1 << (31 - 1)).unwrap();
-}
-
 pub trait PublicKeyParts {
     /// Returns the modulus of the key.
     fn n(&self) -> &BigUint;
@@ -642,11 +637,11 @@ impl RSAPrivateKey {
 /// Check that the public key is well formed and has an exponent within acceptable bounds.
 #[inline]
 pub fn check_public(public_key: &impl PublicKeyParts) -> Result<()> {
-    if public_key.e() < &*MIN_PUB_EXPONENT {
+    if public_key.e() < &BigUint::from_u64(2).unwrap() {
         return Err(Error::PublicExponentTooSmall);
     }
 
-    if public_key.e() > &*MAX_PUB_EXPONENT {
+    if public_key.e() > &BigUint::from_u64(1 << (31 - 1)).unwrap() {
         return Err(Error::PublicExponentTooLarge);
     }
 
